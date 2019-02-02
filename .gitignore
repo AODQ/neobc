@@ -1,0 +1,16 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/neobc
+neobc.so
+neobc.dylib
+neobc.dll
+neobc.a
+libneobc.a
+neobc.lib
+neobc-test-*
+*.exe
+*.o
+*.obj
+*.lst

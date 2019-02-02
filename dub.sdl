@@ -1,0 +1,5 @@
+name "neobc"
+description "BetterC standard library"
+authors "aodq"
+copyright "nil"
+license "UNLICENSE or MIT"
