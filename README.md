@@ -9,5 +9,7 @@ arbitrary), and the useability of a function could change with any update.
 
 Until then, we're forced to roll our own stuff.
 
-NeoBC is used in dtoavk, however it's been completely decoupled since
-dtoavk-bindings requires neobc for some binding implementations.
+NeoBC is used in [dtoavk](https://github.com/aodq/dtoavk), however it's been
+completely decoupled since
+[dtoavk-bindings](https://github.com/aodq/dtoavk-bindings) requires neobc for
+some binding implementations.
