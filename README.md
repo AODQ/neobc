@@ -1,4 +1,4 @@
-# neobc
+# NeoBC
 
 This is a BetterC standard library. It only exists because many portions of
 Phobos relies on D runtime and/or garbage collection. When BetterC gets
@@ -8,3 +8,6 @@ annoying to have to guess if a function is usable or not (it's pretty
 arbitrary), and the useability of a function could change with any update.
 
 Until then, we're forced to roll our own stuff.
+
+NeoBC is used in dtoavk, however it's been completely decoupled since
+dtoavk-bindings requires neobc for some binding implementations.
