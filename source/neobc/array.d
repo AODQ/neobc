@@ -20,17 +20,17 @@ struct Array(T) {
   private void Construct(size_t _dataLength) {
     dataLength = _dataLength;
 
-    T * dataPtr = cast(T *)malloc(dataLength * T.sizeof);
+    T * dataPtr = cast(T *)calloc(dataLength, T.sizeof);
     data = dataPtr[0 .. dataLength];
   }
 
   @disable this(this);
 
-  this(U...)(U args) {
-    Construct(args.length);
-    foreach ( it, i; args )
-      data[it] = cast(T)i;
-  }
+  // this(U...)(U args) {
+  //   Construct(args.length);
+  //   foreach ( it, i; args )
+  //     data[it] = cast(T)i;
+  // }
 
   this ( size_t _dataLength ) {
     if ( _dataLength == 0 ) return;
@@ -45,7 +45,6 @@ struct Array(T) {
 
   size_t length ( ) { return dataLength; }
   void length(size_t length) { Resize(length); }
-  // TODO : void length ( size_t length )
 
   size_t opDollar() { return dataLength; }
   ref T opIndex(size_t idx) { return data[idx]; }
@@ -56,11 +55,18 @@ struct Array(T) {
     // T* dataPtr = cast(T*)realloc(cast(void*)data.ptr, T.sizeof * newLength);
     // until then just do this
 
-    T * newData = cast(T *)malloc(newLength * T.sizeof);
-    memcpy(newData, data.ptr, dataLength * T.sizeof);
+    // allocate data
+    T * newData = cast(T *)calloc(newLength, T.sizeof);
 
-    free(data.ptr);
+    // copy old contents
+    size_t copyLength = dataLength > newLength ? newLength : dataLength;
+    memcpy(newData, data.ptr, copyLength * T.sizeof);
 
+    // free previous memory if appropiate
+    if (data.ptr != null)
+      free(data.ptr);
+
+    // store as range
     data = newData[0 .. newLength];
     dataLength = newLength;
   }
