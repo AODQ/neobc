@@ -1,6 +1,6 @@
 module neobc.array_range;
 
-struct ArrayRange(T) {
+struct ArrayRange(T, Imm=T) {
   private T * dataFront, dataEnd;
 
   this(T * dataFront_, T * dataEnd_) {

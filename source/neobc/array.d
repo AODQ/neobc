@@ -42,11 +42,15 @@ struct Array(T) {
   }
 
   T * ptr ( ) { return data.ptr; }
+  inout(T) * ptr ( ) inout { return data.ptr; }
 
-  size_t length ( ) { return dataLength; }
+  size_t size() inout {
+    return T.sizeof * dataLength;
+  }
+  size_t length ( ) inout { return dataLength; }
   void length(size_t length) { Resize(length); }
 
-  size_t opDollar() { return dataLength; }
+  size_t opDollar() inout { return dataLength; }
   ref T opIndex(size_t idx) { return data[idx]; }
 
   void Resize(size_t newLength) {
@@ -90,6 +94,10 @@ struct Array(T) {
 
   ArrayRange!T AsRange() {
     return ArrayRange!T(data.ptr, data.ptr + dataLength);
+  }
+
+  ArrayRange!(immutable T) AsRange() immutable {
+    return ArrayRange!(immutable T)(data.ptr, data.ptr + dataLength);
   }
 
   mixin RvalueRef;
