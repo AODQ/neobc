@@ -11,6 +11,20 @@ private bool ProperVectorUnaryOperation(string op) {
   return op == "-" || op == "+";
 }
 
+private size_t SwizzleIndex(char c) {
+  switch (c) {
+    default: return -1;
+    case 'r': case 'x': return 0; case 'g': case 'y': return 1;
+    case 'b': case 'z': return 2; case 'a': case 'w': return 3;
+  }
+}
+
+private size_t[] GenerateSwizzleList(string swizzleList)() {
+  size_t[] buffer;
+  foreach (swizzle; swizzleList) buffer ~= SwizzleIndex(swizzle);
+  return buffer;
+}
+
 struct Vector(size_t _Dim, _Type) {
   alias Type = _Type;
   static immutable size_t Dim = _Dim;
@@ -19,20 +33,41 @@ struct Vector(size_t _Dim, _Type) {
 
   this(U)(U x) { data[] = cast(Type)x; }
   this(U)(U x, U y, U z, U w) {
-      data[0] = x;
-      data[1] = y;
-      data[2] = z;
-      data[3] = w;
+      data[0] = x; data[1] = y; data[2] = z; data[3] = w;
   }
   this(U)(Vector!(Dim, U) vec) {
-      data[0] = vec.x;
-      data[1] = vec.y;
-      data[2] = vec.z;
-      data[3] = vec.w;
+      data[0] = vec.x; data[1] = vec.y; data[2] = vec.z; data[3] = vec.w;
   }
 
   /// Returns a pointer to the data container of this vector
   inout(Type)* ptr() pure inout nothrow { return data.ptr; }
+
+  auto opDispatch(string swizzleList, U = void)() pure const nothrow
+    if (swizzleList.length <= 4)
+  {
+    static if (swizzleList.length == 1) {
+      size_t idx = (GenerateSwizzleList!swizzleList)[0];
+      return data[idx];
+    }
+    // else {
+    //   Vector!(T, swizzleList.length) retVec;
+    //   static foreach (iter, idx; GenerateSwizzleList!swizzleList)
+    //     retVec.data[iter] = data[index];
+    //   return retVec;
+    // }
+  }
+
+  auto opDispatch(string swizzleList, U)(U x) pure nothrow {
+    static if (swizzleList.length == 1) {
+      this.data[(GenerateSwizzleList!swizzleList)[0]] = x;
+      return x;
+    } else {
+      Vector!(T, swizzleList.length) tvec = x; // scalar to vector
+      static foreach (iter, idx; GenerateSwizzleList!swizzleList)
+        data[idx] = tvec.data[iter];
+      return tvec;
+    }
+  }
 }
 
 Type dot(size_t Length, Type)(
@@ -40,15 +75,14 @@ Type dot(size_t Length, Type)(
   Vector!(Length, Type) right
 ) pure @nogc nothrow {
   Type temp = cast(Type)(0);
-
-  static foreach ( i; 0 .. Dim )
+  static foreach (i; 0 .. Dim)
     temp += left.data[i] * right.data[i];
   return temp;
 }
 
 Type length(size_t Length, Type)(Vector!(Length, Type) vec) pure @nogc nothrow {
   Type accumulator = cast(Type)(0);
-  static foreach ( i; 0 .. Dim )
+  static foreach (i; 0 .. Dim)
     accumulator += vec.data[i] * vec.data[i];
   return cast(Type) sqrt(cast(float)accumulator);
 }
@@ -61,12 +95,10 @@ Type length(size_t Length, Type)(
 }
 
 Vector!(Length, Type) normalize(size_t Length, Type)(Vector!(Length, Type) vec)
-    pure @nogc nothrow
-{
+    pure @nogc nothrow {
   return vec.opBinary!"/"(vec.length);
 }
 
-// unittest on generic functions
 enum IsVector(T) = is(T : Vector!U, U...);
 
 alias float2 = Vector!(2, float);

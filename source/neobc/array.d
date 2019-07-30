@@ -14,17 +14,14 @@ mixin template RvalueRef() {
 
 
 struct Array(T) {
-  private T[] data; // Must be T[] so default state is an empty array
+  private T* data; // Must be T[] so default state is an empty array
   private size_t dataLength;
 
   private void Construct(size_t _dataLength) {
     dataLength = _dataLength;
 
-    T * dataPtr = cast(T *)calloc(dataLength, T.sizeof);
-    data = dataPtr[0 .. dataLength];
+    data = cast(T *)calloc(dataLength, T.sizeof);
   }
-
-  @disable this(this);
 
   // this(U...)(U args) {
   //   Construct(args.length);
@@ -32,22 +29,34 @@ struct Array(T) {
   //     data[it] = cast(T)i;
   // }
 
-  this ( size_t _dataLength ) {
+  this(size_t _dataLength) {
     if ( _dataLength == 0 ) return;
     Construct(_dataLength);
   }
 
-  ~this () {
-    free(cast(void*)data.ptr);
+  ~this() {
+    free(cast(void*)data);
   }
 
-  T * ptr ( ) { return data.ptr; }
-  inout(T) * ptr ( ) inout { return data.ptr; }
+  this(ref return scope const Array!T other) {
+    Construct(other.dataLength);
+    memcpy(data, other.data, other.size);
+  }
+
+  void Clear() {
+    if (data != null)
+      free(cast(void*)data);
+    data = null;
+    dataLength = 0;
+  }
+
+  T * ptr() { return data; }
+  inout(T) * ptr() inout { return data; }
 
   size_t size() inout {
     return T.sizeof * dataLength;
   }
-  size_t length ( ) inout { return dataLength; }
+  size_t length() inout { return dataLength; }
   void length(size_t length) { Resize(length); }
 
   size_t opDollar() inout { return dataLength; }
@@ -62,27 +71,28 @@ struct Array(T) {
     // allocate data
     T * newData = cast(T *)calloc(newLength, T.sizeof);
 
-    // copy old contents
-    size_t copyLength = dataLength > newLength ? newLength : dataLength;
-    memcpy(newData, data.ptr, copyLength * T.sizeof);
+    // copy old contents & free if appropiate
+    if (data != null) {
+      size_t copyLength = dataLength > newLength ? newLength : dataLength;
+      memcpy(newData, data, copyLength * T.sizeof);
 
-    // free previous memory if appropiate
-    if (data.ptr != null)
-      free(data.ptr);
+      free(data);
+    }
 
-    // store as range
-    data = newData[0 .. newLength];
+    // store
+    data = cast(T *)malloc(newLength * T.sizeof);
+    memcpy(data, newData, newLength * T.sizeof);
     dataLength = newLength;
   }
 
   void opOpAssign(string op : "~")(T rhs) {
     Resize(dataLength + 1);
-    data[$-1] = rhs;
+    data[dataLength-1] = rhs;
   }
 
   void opOpAssign(string op : "~")(ref T rhs) {
     Resize(dataLength + 1);
-    data[$-1] = rhs;
+    data[dataLength-1] = rhs;
   }
 
   void opOpAssign(string op)(ref Array!T rhs) if ( op == "~" ) {
@@ -93,11 +103,11 @@ struct Array(T) {
   }
 
   ArrayRange!T AsRange() {
-    return ArrayRange!T(data.ptr, data.ptr + dataLength);
+    return ArrayRange!T(data, data + dataLength);
   }
 
   ArrayRange!(immutable T) AsRange() immutable {
-    return ArrayRange!(immutable T)(data.ptr, data.ptr + dataLength);
+    return ArrayRange!(immutable T)(data, data + dataLength);
   }
 
   mixin RvalueRef;

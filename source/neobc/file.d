@@ -23,12 +23,12 @@ private void mmap_file(const(char)* fileName, ref Array!(char) fileData) {
 
   FILE * file = fopen(fileName, "rb");
   if(!file) { printf("Could not open file\n"); return; }
-  fseek(file, 0, SEEK_END);
-  auto fileLength = ftell(file);
-  rewind(file);
+  file.fseek(0, SEEK_END);
+  auto fileLength = file.ftell;
+  file.rewind;
   fileData.length = fileLength;
-  fread(fileData.ptr, fileLength, 1, file);
-  fclose(file);
+  fileData.ptr.fread(fileLength, 1, file);
+  file.fclose;
 }
 
 void ReadFile(const(char)* fileName, ref Array!(char) fileData) {
