@@ -1,20 +1,40 @@
 module neobc.string;
 
-// Have to create your own ToString function, and import
-// all modules associated with the project, at least
-// those you want string enums build for
-string ToStringMixin(T)() {
-  import std.format;
-  import std.conv : to;
+import neobc.array;
 
-  string caseMixer;
-  foreach (i; T.min .. T.max) {
-    caseMixer ~=
-      `case %s: return "%s";`.format(i.to!string, i.to!string);
+import core.stdc.stdlib;
+import core.stdc.string;
+
+string ToString(T)(T value) {
+  immutable static string[] mem = [__traits(allMembers, T)];
+  return mem[cast(size_t)(value)];
+}
+
+struct String {
+  this(string s) {
+    data = Array!(char)(s.length, s.ptr);
+    MakeCString;
   }
-  return
-    `switch(value) with(%s) {
-        default: return "N/A";
-        %s
-    }`.format(T.stringof, caseMixer);
+
+  private void MakeCString() {
+    if (data[$-1] != '\0')
+      data ~= '\0';
+  }
+
+  void opOpAssign(string op)(ref String rhs) if (op == "~") {
+    size_t actualLength = data.ptr == null ? 0 : data.length-1;
+    data.Resize(actualLength + rhs.length);
+    memcpy(cast(void*)(data.ptr + actualLength), rhs.ptr, rhs.length);
+  }
+
+  void opOpAssign(string op)(string rhs) if (op == "~") {
+    size_t actualLength = data.ptr == null ? 0 : data.length-1;
+    data.Resize(data.length + rhs.length);
+    memcpy(cast(void*)(data.ptr + actualLength), rhs.ptr, rhs.length);
+    MakeCString();
+  }
+
+  immutable(char)* ptr() { return cast(immutable(char)*)data.ptr; }
+
+  private Array!(char) data;
 }
