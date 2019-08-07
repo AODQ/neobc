@@ -1,15 +1,7 @@
 # NeoBC
 
-This is a BetterC standard library. It only exists because many portions of
-Phobos relies on D runtime and/or garbage collection. When BetterC gets
-exception support, and Phobos gets better @nogc support, then this library will
-be defunct. While some portions of Phobos can still be used, it's rather
-annoying to have to guess if a function is usable or not (it's pretty
-arbitrary), and the useability of a function could change with any update.
+Basically my personal specialized library for BetterC.  It exists because many
+portions of Phobos relies on D runtime and/or garbage collection. Neither are
+something I feel comfortable with on a few D projects I work on.
 
-Until then, we're forced to roll our own stuff.
-
-NeoBC is used in [dtoavk](https://github.com/aodq/dtoavk), however it's been
-completely decoupled since
-[dtoavk-bindings](https://github.com/aodq/dtoavk-bindings) requires neobc for
-some binding implementations.
+NeoBC is currently actively used in [dtrl](https://github.com/aodq/dtrl)
