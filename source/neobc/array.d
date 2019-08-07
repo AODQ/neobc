@@ -30,8 +30,14 @@ struct Array(T) {
   // }
 
   this(size_t _dataLength) {
-    if ( _dataLength == 0 ) return;
+    if (_dataLength == 0) return;
     Construct(_dataLength);
+  }
+
+  this (size_t _dataLength, inout(T)* srcData) {
+    if (_dataLength == 0) return;
+    Construct(_dataLength);
+    memcpy(cast(void*)data, cast(void*)srcData, size);
   }
 
   ~this() {
@@ -40,7 +46,7 @@ struct Array(T) {
 
   this(ref return scope const Array!T other) {
     Construct(other.dataLength);
-    memcpy(data, other.data, other.size);
+    memcpy(cast(void*)data, cast(void*)other.data, other.size);
   }
 
   void Clear() {
@@ -74,14 +80,14 @@ struct Array(T) {
     // copy old contents & free if appropiate
     if (data != null) {
       size_t copyLength = dataLength > newLength ? newLength : dataLength;
-      memcpy(newData, data, copyLength * T.sizeof);
+      memcpy(cast(void*)newData, cast(void*)data, copyLength * T.sizeof);
 
-      free(data);
+      free(cast(void*)data);
     }
 
     // store
     data = cast(T *)malloc(newLength * T.sizeof);
-    memcpy(data, newData, newLength * T.sizeof);
+    memcpy(cast(void*)data, cast(void*)newData, newLength * T.sizeof);
     dataLength = newLength;
   }
 
