@@ -44,7 +44,7 @@ struct Array(T) {
     free(cast(void*)data);
   }
 
-  this(ref return scope const Array!T other) {
+  this(ref return scope inout(Array!T) other) {
     Construct(other.dataLength);
     memcpy(cast(void*)data, cast(void*)other.data, other.size);
   }
