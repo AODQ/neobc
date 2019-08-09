@@ -16,7 +16,12 @@ struct ArrayRange(T) {
   }
   ref T opIndex(size_t idx) { return dataFront[idx]; }
 
-  ref inout(T) front() inout { return dataFront[0]; }
+  T* ptr() { return dataFront; }
+  T* frontPtr() { return dataFront; }
+  T* backPtr() { return dataEnd; }
+
+  ref inout(T) front() inout { return *dataFront; }
+  ref inout(T) back () inout { return *dataEnd; }
   void popFront() { ++ dataFront; };
   bool empty() inout { return dataFront == dataEnd; }
 }
