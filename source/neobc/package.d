@@ -1,2 +1,10 @@
 module neobc;
-public import neobc.memory, neobc.array, neobc.time, neobc.string;
+public import
+  neobc.allocator
+, neobc.array
+, neobc.array_range
+, neobc.memory
+, neobc.string
+, neobc.time
+, neobc.uniqueptr
+;
