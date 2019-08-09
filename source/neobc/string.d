@@ -49,7 +49,7 @@ struct String {
       data ~= '\0';
   }
 
-  void opOpAssign(string op)(ref String rhs) if (op == "~") {
+  void opOpAssign(string op)(String rhs) if (op == "~") {
     size_t actualLength = data.ptr == null ? 0 : data.length-1;
     data.Resize(actualLength + rhs.length);
     memcpy(cast(void*)(data.ptr + actualLength), rhs.ptr, rhs.length);
@@ -62,7 +62,13 @@ struct String {
     MakeCString();
   }
 
-  immutable(char)* ptr() { return cast(immutable(char)*)data.ptr; }
+  inout(char)* ptr() inout { return cast(inout(char)*)data.ptr; }
+  void Resize(size_t i) {
+    data.Resize(i+1);
+    data[$-1] = '\0';
+  }
+
+  size_t length() { return data.length; }
 
   private Array!(char) data;
 }
