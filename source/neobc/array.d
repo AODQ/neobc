@@ -29,6 +29,7 @@ struct Array(T) {
   //     data[it] = cast(T)i;
   // }
 
+  static Array!T Create(size_t dataLength) { return Array!T(dataLength); }
   this(size_t _dataLength) {
     if (_dataLength == 0) return;
     Construct(_dataLength);
@@ -109,11 +110,11 @@ struct Array(T) {
   }
 
   ArrayRange!T AsRange() {
-    return ArrayRange!T(data, data + dataLength);
+    return ArrayRange!T.Create(data, data + dataLength);
   }
 
   ArrayRange!(immutable T) AsRange() immutable {
-    return ArrayRange!(immutable T)(data, data + dataLength);
+    return ArrayRange!(immutable T).Create(data, data + dataLength);
   }
 
   mixin RvalueRef;
