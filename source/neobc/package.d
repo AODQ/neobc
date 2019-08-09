@@ -4,6 +4,7 @@ public import
 , neobc.array
 , neobc.array_range
 , neobc.memory
+, neobc.memory
 , neobc.string
 , neobc.time
 , neobc.uniqueptr
