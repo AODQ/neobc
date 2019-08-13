@@ -15,11 +15,16 @@ struct LinearAllocator {
   }
 
   ArrayRange!T Allocate(T)(size_t length = 1) {
-    T* front = cast(T*)(data.ptr) + itr;
-    T* end   = cast(T*)(data.ptr) + itr + length;
+    T* front = cast(T*)(data.ptr + itr);
+    T* end   = cast(T*)(data.ptr + itr) + length;
     itr += length * T.sizeof;
     EnforceAssert(itr <= data.length, "Attemping to allocate too much data");
     return ArrayRange!T.Create(front, end);
+  }
+
+  void* ptr() { return data.ptr; }
+  void* end() {
+    return data.ptr + itr;
   }
 
   size_t BytesLeft() { return data.length - itr; }
