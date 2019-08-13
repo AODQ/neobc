@@ -5,23 +5,42 @@ import neobc.array;
 import core.stdc.stdlib;
 import core.stdc.string;
 
-string ToStringEnum(T)(T value) {
-  immutable static string[] mem = [__traits(allMembers, T)];
-  return mem[cast(size_t)(value)];
-}
-
-String ToString(T)(T value) if (__traits(isIntegral, T)) {
+String ToString(T)(T value)
+  if (__traits(isIntegral, T)
+   && !is(T == enum)
+   && !is(T == bool)
+  )
+{
   import core.stdc.stdlib;
   import core.stdc.stdio;
   import core.stdc.math;
 
   T logValue = value < 0 ? -value : value;
+  if (logValue < 0) return String("N/A");
   if (logValue == 0) logValue = 1;
 
   String s;
   s.Resize(cast(int)(floor(log10(logValue)+1)));
   snprintf(s.ptr, s.length, "%d", value);
   return s;
+}
+
+String ToString(T)(T value) if (is(T == U*, U)) {
+  import core.stdc.stdio;
+
+  String s;
+  s.Resize(15);
+  snprintf(s.ptr, s.length, "%p", value);
+  return s;
+}
+
+String ToString(T)(T value) if (is(T == bool)) {
+  return value ? String("true") : String("false");
+}
+
+String ToString(T)(T value) if (is(T == enum)) {
+  immutable static string[] mem = [__traits(allMembers, T)];
+  return String(mem[cast(size_t)(value)]);
 }
 
 String ToString(T)(T value) if (__traits(isFloating, T)) {
