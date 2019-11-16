@@ -27,6 +27,7 @@ struct LinearAllocator {
     return data.ptr + itr;
   }
 
+  size_t BytesAllocated() { return itr; }
   size_t BytesLeft() { return data.length - itr; }
 
   /*

@@ -4,6 +4,7 @@ import core.stdc.stdio;
 import core.stdc.stdlib;
 import core.stdc.string;
 import neobc.array_range;
+static import neobc.arrayview;
 
 // Idiom from Randy Schutt
 mixin template RvalueRef() {
@@ -11,7 +12,6 @@ mixin template RvalueRef() {
         return this;
     }
 }
-
 
 struct Array(T) {
   private T* data; // Must be T[] so default state is an empty array
@@ -23,11 +23,11 @@ struct Array(T) {
     data = cast(T *)calloc(dataLength, T.sizeof);
   }
 
-  // this(U...)(U args) {
-  //   Construct(args.length);
-  //   foreach ( it, i; args )
-  //     data[it] = cast(T)i;
-  // }
+  this(U...)(U args) {
+    Construct(args.length);
+    foreach (it, i; args)
+      data[it] = cast(T)i;
+  }
 
   static Array!T Create(size_t dataLength) { return Array!T(dataLength); }
   this(size_t _dataLength) {
@@ -92,6 +92,14 @@ struct Array(T) {
     dataLength = newLength;
   }
 
+  /* Appends T(), then assigns T.Construct to it, which allows an append w/o a
+   * destructor call on actual useful information */
+  T* ConstructAppend()() if (__traits(hasMember, T, "Construct")) {
+    this ~= T();
+    this[$-1] = T.Construct;
+    return &this[$-1];
+  }
+
   void opOpAssign(string op : "~")(T rhs) {
     Resize(dataLength + 1);
     data[dataLength-1] = rhs;
@@ -107,6 +115,10 @@ struct Array(T) {
     foreach ( size_t i; 0 .. rhs.dataLength ) {
       data[originDataLength + i] = rhs[i];
     }
+  }
+
+  neobc.ArrayView AsView() {
+    return neobc.ArrayView.Construct(dataLength, cast(void*)data);
   }
 
   ArrayRange!T AsRange() {

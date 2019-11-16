@@ -31,6 +31,12 @@ private void mmap_file(const(char)* fileName, ref Array!(char) fileData) {
   file.fclose;
 }
 
-void ReadFile(const(char)* fileName, ref Array!(char) fileData) {
-  mmap_file(fileName, fileData);
+void ReadFile(string fileName, ref Array!(char) fileData) {
+  mmap_file(cast(const(char)*)fileName.ptr, fileData);
+}
+
+Array!char ReadFile(string fileName) {
+  Array!char fileData;
+  ReadFile(fileName, fileData);
+  return fileData;
 }
