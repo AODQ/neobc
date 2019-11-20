@@ -9,11 +9,11 @@ uint64_t GetNsTime() {
   }
 }
 
-void Sleep() {
+void Sleep(size_t nanoseconds = 5) {
   import core.sys.posix.time;
 
   timespec requested, remainder;
-  requested.tv_nsec = 5;
+  requested.tv_nsec = nanoseconds;
   requested.tv_sec = 0;
 
   nanosleep(&requested, &remainder);
