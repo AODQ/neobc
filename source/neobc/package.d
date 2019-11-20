@@ -7,7 +7,7 @@ public import
 , neobc.assertion
 , neobc.file
 , neobc.memory
-, neobc.memory
+, neobc.range
 , neobc.string
 , neobc.time
 , neobc.uniqueptr

@@ -38,7 +38,7 @@ struct Array(T) {
   this (size_t _dataLength, inout(T)* srcData) {
     if (_dataLength == 0) return;
     Construct(_dataLength);
-    memcpy(cast(void*)data, cast(void*)srcData, size);
+    memcpy(cast(void*)data, cast(void*)srcData, byteLength);
   }
 
   ~this() {
@@ -47,7 +47,7 @@ struct Array(T) {
 
   this(ref return scope inout(Array!T) other) {
     Construct(other.dataLength);
-    memcpy(cast(void*)data, cast(void*)other.data, other.size);
+    memcpy(cast(void*)data, cast(void*)other.data, other.byteLength);
   }
 
   void Clear() {
@@ -60,7 +60,7 @@ struct Array(T) {
   T * ptr() { return data; }
   inout(T) * ptr() inout { return data; }
 
-  size_t size() inout {
+  size_t byteLength() inout {
     return T.sizeof * dataLength;
   }
   size_t length() inout { return dataLength; }
