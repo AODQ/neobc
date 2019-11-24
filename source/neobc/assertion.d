@@ -15,7 +15,10 @@ void EnforceAssert(
   import core.stdc.stdlib;
   import core.stdc.signal;
 
-  printf("assert failed: %s: %s ; %d: %s\n", FP.ptr, PF.ptr, LC, err.ptr);
+  printf(
+    "%s assert failed: %s: %s ; %d: %s\n", "\033[0;31m".ptr
+  , FP.ptr, PF.ptr, LC, err.ptr
+  );
 
   raise(SIGABRT);
   exit(-1);

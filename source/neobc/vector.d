@@ -32,8 +32,18 @@ struct Vector(size_t _Dim, _Type) {
   Type[Dim] data;
 
   this(U)(U x) { data[] = cast(Type)x; }
-  this(U)(U x, U y, U z, U w) {
-      data[0] = x; data[1] = y; data[2] = z; data[3] = w;
+  static if(Dim == 2) {
+    this(U)(U x, U y) { data[0] = cast(Type)x; data[1] = cast(Type)y; }
+  }
+  static if(Dim == 3) {
+    this(U)(U x, U y, U z) {
+      data[0] = cast(Type)x; data[1] = cast(Type)y; data[2] = cast(Type)z;
+    }
+  }
+  static if(_Dim == 4) {
+    this(U)(U x, U y, U z, U w) {
+        data[0] = x; data[1] = y; data[2] = z; data[3] = w;
+    }
   }
   this(U)(Vector!(Dim, U) vec) {
       data[0] = vec.x; data[1] = vec.y; data[2] = vec.z; data[3] = vec.w;

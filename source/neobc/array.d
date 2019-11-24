@@ -23,13 +23,14 @@ struct Array(T) {
     data = cast(T *)calloc(dataLength, T.sizeof);
   }
 
-  this(U...)(U args) {
-    Construct(args.length);
+  static Array!T Create(U...)(U args) {
+    Array!T array;
+    array.Construct(args.length);
     foreach (it, i; args)
-      data[it] = cast(T)i;
+      array.data[it] = cast(T)i;
+    return array;
   }
 
-  static Array!T Create(size_t dataLength) { return Array!T(dataLength); }
   this(size_t _dataLength) {
     if (_dataLength == 0) return;
     Construct(_dataLength);
