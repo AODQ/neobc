@@ -14,13 +14,23 @@ mixin template RvalueRef() {
 }
 
 struct Array(T) {
-  private T* data; // Must be T[] so default state is an empty array
-  private size_t dataLength;
+  private T* data = null; // Must be T[] so default state is an empty array
+  private size_t dataLength = 0;
+
+  private static T* AllocateMemory(size_t length) {
+    T* ptr = cast(T*)calloc(length, T.sizeof);
+    return ptr;
+  }
+
+  private static void FreeMemory(void* ptr) {
+    if (ptr == null) { printf("Trying to free nullptr!\n"); return; }
+    free(ptr);
+  }
 
   private void Construct(size_t _dataLength) {
     dataLength = _dataLength;
 
-    data = cast(T *)calloc(dataLength, T.sizeof);
+    data = AllocateMemory(dataLength);
   }
 
   static Array!T Create(U...)(U args) {
@@ -43,7 +53,7 @@ struct Array(T) {
   }
 
   ~this() {
-    free(cast(void*)data);
+    FreeMemory(cast(void*)data);
   }
 
   this(ref return scope inout(Array!T) other) {
@@ -53,7 +63,7 @@ struct Array(T) {
 
   void Clear() {
     if (data != null)
-      free(cast(void*)data);
+      FreeMemory(cast(void*)data);
     data = null;
     dataLength = 0;
   }
@@ -77,18 +87,18 @@ struct Array(T) {
     // until then just do this
 
     // allocate data
-    T * newData = cast(T *)calloc(newLength, T.sizeof);
+    T * newData = AllocateMemory(newLength);
 
     // copy old contents & free if appropiate
     if (data != null) {
       size_t copyLength = dataLength > newLength ? newLength : dataLength;
       memcpy(cast(void*)newData, cast(void*)data, copyLength * T.sizeof);
 
-      free(cast(void*)data);
+      FreeMemory(cast(void*)data);
     }
 
     // store
-    data = cast(T *)malloc(newLength * T.sizeof);
+    data = AllocateMemory(newLength);
     memcpy(cast(void*)data, cast(void*)newData, newLength * T.sizeof);
     dataLength = newLength;
   }
