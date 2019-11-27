@@ -78,7 +78,18 @@ struct Array(T) {
   void length(size_t length) { Resize(length); }
 
   size_t opDollar() inout { return dataLength; }
-  ref T opIndex(size_t idx) { return data[idx]; }
+  ref T opIndex(size_t idx) {
+    debug {
+      if (idx < 0 || idx >= dataLength) {
+        import core.stdc.stdio;
+        import core.stdc.signal;
+        printf("Index out of range (%lu) for [0 .. %lu]\n", idx, dataLength-1);
+        raise(SIGABRT);
+        exit(-1);
+      }
+    }
+    return data[idx];
+  }
 
   void Resize(size_t newLength) {
     // TODO make realloc work
